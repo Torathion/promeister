@@ -27,6 +27,8 @@ body:
       label: Error Logs
       description: "Paste console errors or stack traces (wrap in ``` for formatting)"
       render: shell
+    validations:
+      required: true
   - type: checkboxes
     id: confirmations
     attributes:
@@ -38,3 +40,4 @@ body:
         - label: I've included all relevant details
           required: true
         - label: I've tested it on the latest version
+          required: true

@@ -3,12 +3,12 @@ import { build } from 'esbuild'
 const buildOptions = {
   entryPoints: ['./src/index.ts'],
   bundle: true,
+  treeShaking: true,
   minify: true,
   platform: 'node',
   sourcemap: false,
   target: 'es2022',
-  logLevel: 'info',
-  packages: 'external'
+  logLevel: 'info'
 }
 
 // Build ESM version

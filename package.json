@@ -1,6 +1,6 @@
 {
   "name": "promeister",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extended promises with a lot of vital features. The AIO Promise class.",
   "types": "./index.d.ts",
   "main": "./dist/index.js",
