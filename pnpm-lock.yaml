@@ -13,7 +13,7 @@ importers:
         version: 3.0.1
       typestar:
         specifier: ^1.9.1
-        version: 1.9.1
+        version: 1.10.1
     devDependencies:
       '@types/node':
         specifier: ^22.14.1
@@ -2573,8 +2573,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typestar@1.9.1:
-    resolution: {integrity: sha512-EoMAfRdg0LEzSWBr3IKn/4ieKZEs+hjh0uX22jupr4M9W8pitOZTx8zZ3zevd4OWyAjCZ6a5ndeYx4VDUohVAg==}
+  typestar@1.10.1:
+    resolution: {integrity: sha512-r4oZ5oVDJhLEoCIDL1P0IVW9ICIXPNh4PSBh5i7xOqM/KQDA7FrOPn1dNKF3Imuphd2GzeW+R+on8zE6SocsJg==}
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -5896,7 +5896,7 @@ snapshots:
 
   typescript@5.8.3: {}
 
-  typestar@1.9.1: {}
+  typestar@1.10.1: {}
 
   unbox-primitive@1.1.0:
     dependencies:
