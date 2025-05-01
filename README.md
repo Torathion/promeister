@@ -13,7 +13,7 @@
 </p>
 </p>
 
-`promeister` is a `Promise` class wrapper extending the core functionality with several vital features for complex promise constellations while still remaining simplicity in the implementation. It is written in the same style as a normal `Promise`, but with additional features such as:
+`promeister` is a `Promise` class wrapper extending the core functionality with several vital features for complex promise constellations while still remaining simplicity in the implementation and can be used as a **drop-in replacement** for promises. It is written in the same style as a normal `Promise`, but with additional features such as:
 
 - `AbortController` support
 - Timeouts
