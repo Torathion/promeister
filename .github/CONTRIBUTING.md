@@ -2,21 +2,17 @@
 
 Thank you for your interest in contributing to promeister! We welcome contributions from everyone, whether you're fixing bugs, improving documentation, or adding new features. This guide will help you get started.
 
----
-
 ## Table of Contents
+
 1. [Code of Conduct](#code-of-conduct)
 2. [Getting Started](#getting-started)
 3. [Setting Up the Project](#setting-up-the-project)
 4. [Making Changes](#making-changes)
 5. [Style Guidelines](#style-guidelines)
----
 
 ## Code of Conduct
 
 By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please read it before making any contributions.
-
----
 
 ## Getting Started
 

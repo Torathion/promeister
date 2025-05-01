@@ -12,17 +12,17 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       typestar:
-        specifier: ^1.9.1
-        version: 1.10.1
+        specifier: ^1.11.0
+        version: 1.11.0
     devDependencies:
       '@types/node':
-        specifier: ^22.14.1
+        specifier: ^22.15.3
         version: 22.15.3
       '@vitest/coverage-v8':
         specifier: ^3.1.2
         version: 3.1.2(vitest@3.1.2(@types/node@22.15.3)(jiti@2.4.2)(stylus@0.57.0))
       esbuild:
-        specifier: ^0.25.2
+        specifier: ^0.25.3
         version: 0.25.3
       eslint:
         specifier: ^9.25.1
@@ -2590,8 +2590,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typestar@1.10.1:
-    resolution: {integrity: sha512-r4oZ5oVDJhLEoCIDL1P0IVW9ICIXPNh4PSBh5i7xOqM/KQDA7FrOPn1dNKF3Imuphd2GzeW+R+on8zE6SocsJg==}
+  typestar@1.11.0:
+    resolution: {integrity: sha512-qY63sJVhtICsKAvLEsxmqzs5z3LnMTkg/9cZC4ZATNSH9UZo8QORyjd5ImM/C3gnmwLNH2+gujuNsn0spmvUaw==}
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -5926,7 +5926,7 @@ snapshots:
 
   typescript@5.8.3: {}
 
-  typestar@1.10.1: {}
+  typestar@1.11.0: {}
 
   unbox-primitive@1.1.0:
     dependencies:
