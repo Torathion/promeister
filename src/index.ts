@@ -3,6 +3,9 @@ import { Bitmap, createBitmapStates } from 'bitbob'
 import CanceledError from './CanceledError'
 import TimeoutError from './TimeoutError'
 
+export { default as CanceledError } from './CanceledError'
+export { default as TimeoutError } from './TimeoutError'
+
 const State = createBitmapStates(['Resolved', 'Rejected', 'Canceled', 'Timeout', 'Interrupted'])
 
 /**
