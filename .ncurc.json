@@ -1,5 +1,6 @@
 {
     "format": "group",
     "root": ".",
-    "upgrade": true
+    "upgrade": true,
+    "reject": ["typescript", "eslint"]
 }
