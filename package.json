@@ -13,9 +13,8 @@
     }
   },
   "scripts": {
-    "build": "node esbuild.config.js",
+    "build": "tsdown",
     "lint": "eslint src --fix",
-    "format": "npx prettier --write */**.ts",
     "test": "vitest"
   },
   "keywords": [
@@ -42,10 +41,10 @@
   "devDependencies": {
     "@types/node": "^26.1.2",
     "@vitest/coverage-v8": "^4.1.10",
-    "esbuild": "^0.28.1",
     "eslint": "^9.25.1",
     "eslint-config-shiny": "^4.3.1",
     "jiti": "^2.7.0",
+    "tsdown": "^0.22.14",
     "typescript": "^5.8.3",
     "vitest": "^4.1.10"
   },
