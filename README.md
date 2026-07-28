@@ -136,6 +136,10 @@ Just like in `cancelable-promise`, you can define extra options for your `promei
 - You can define an external `AbortController`
 - By default, it will always create a new one in the constructor and use the global one in the static methods.
 
+### silent (`boolean`)
+
+- Silence `Promeister` errors thrown on interrupt events.
+
 #### timeout (`number`)
 
 - Duration after which the promise should terminate.
@@ -154,4 +158,4 @@ Just like in `cancelable-promise`, you can define extra options for your `promei
 
 ---
 
-© Torathion 2025
+© Torathion 2026
