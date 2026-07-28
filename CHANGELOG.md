@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [1.1.0] 290-07-2026
+
+- Added `silent` flag to silence `CanceledError` and `TimeoutError`
+- Fixed potential memory leaks
+
 ## [1.0.2] 05-01-2025
 
 - Fix: Export `CanceledError` and `TimeoutError` to fix import errors.

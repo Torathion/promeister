@@ -555,4 +555,63 @@ describe('Promeister', () => {
       await expect(p).rejects.toThrow(CanceledError)
     })
   })
+
+  describe('silent flag', () => {
+    it('should silently reject (with undefined) when cancelled', async () => {
+      // Create a Promeister with silent enabled
+      const promise = new Promeister(
+        resolve => {
+          delay(10, resolve)
+        },
+        { silent: true }
+      )
+
+      promise.cancel()
+
+      // It should reject with undefined, NOT CanceledError
+      await expect(promise).rejects.toBeUndefined()
+
+      // Internal states should still be updated correctly
+      expect(promise.aborted).toBe(true)
+      expect(promise.canceled).toBe(true)
+      expect(promise.done).toBe(true)
+    })
+
+    it('should silently reject (with undefined) on timeout', async () => {
+      // Create a Promeister that takes 20ms, but times out in 10ms
+      const promise = new Promeister(
+        resolve => {
+          delay(20, resolve)
+        },
+        { timeout: 10, silent: true }
+      )
+
+      // Advance past the timeout threshold
+      vi.advanceTimersByTime(15)
+
+      // It should reject with undefined, NOT TimeoutError
+      await expect(promise).rejects.toBeUndefined()
+
+      // Internal states should still be updated correctly
+      expect(promise.aborted).toBe(true)
+      expect(promise.timedOut).toBe(true)
+      expect(promise.done).toBe(true)
+    })
+
+    it('should gracefully handle finally() execution on silent cancel', async () => {
+      const callback = vi.fn()
+      const promise = new Promeister(
+        resolve => {
+          delay(10, resolve)
+        },
+        { silent: true }
+      ).finally(callback, true)
+
+      promise.cancel()
+      vi.advanceTimersByTime(5)
+
+      // The `finally` callback configured to runOnEvent should still fire
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
 })
