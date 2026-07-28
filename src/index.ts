@@ -1,4 +1,4 @@
-import type { AnyFunction, OnResolved, OnRejected, Rejector, Resolver, SimpleVoidFunction } from 'typestar'
+import type { Fn, OnRejected, OnResolved, Rejector, Resolver, Timeout, VoidFn } from 'typestar'
 import { Bitmap, createBitmapStates } from 'bitbob'
 import CanceledError from './CanceledError'
 import TimeoutError from './TimeoutError'
@@ -41,7 +41,7 @@ export type PromeisterEventHandler<D> = (e: PromeisterEvent<D>) => void
  */
 export interface PromeisterInternals {
   /** Array holding all event callbacks found inside the Promeister */
-  onEventList: AnyFunction[]
+  onEventList: Fn[]
   /** Internal state handler structure */
   state: Bitmap
 }
@@ -58,6 +58,8 @@ export interface PromeisterOptions<T> {
   internals?: PromeisterInternals
   /** Promise to be converted into a Promeister */
   promise?: Promise<T>
+  /** Flag blocking CancelErrors and TimeoutErrors */
+  silent?: boolean
   /** Maximum duration before cancellation  */
   timeout?: number
   /** Amount of retries before entirely giving up trying to fulfill the promise. */
@@ -85,7 +87,7 @@ export function defaultInternals(): PromeisterInternals {
  *  @returns the delay for the current execution.
  */
 function getDelay<T>(options: PromeisterOptions<T>, attempt: number): number {
-  return typeof options.delay === 'function' ? options.delay(attempt) : options.delay ?? 0
+  return typeof options.delay === 'function' ? options.delay(attempt) : (options.delay ?? 0)
 }
 
 /**
@@ -161,13 +163,15 @@ export default class Promeister<T, D = unknown> {
    *  Global flag indicating whether to use the `GlobalController` also for normal `Promeister` created through constructor.
    */
   static UseGlobal = false
-  #abortListener?: AnyFunction
+  #abortListener?: Fn
   #att = 1
   #controller: AbortController
+  #options: PromeisterOptions<T>
   readonly #internals: PromeisterInternals
   readonly #promise: Promise<T>
   #settled = false
-  #signal: AbortSignal;
+  #signal: AbortSignal
+  #timeoutId?: Timeout;
   [Symbol.toStringTag] = 'Promeister'
 
   constructor(executor: PromeisterCallback<T, D> = noop, opts?: PromeisterOptions<T>) {
@@ -179,6 +183,7 @@ export default class Promeister<T, D = unknown> {
     const controller = (this.#controller = options.controller)
     const signal = (this.#signal = controller.signal)
 
+    this.#options = options
     this.#promise =
       options.promise ??
       new Promise<T>((resolve, reject) => {
@@ -200,7 +205,7 @@ export default class Promeister<T, D = unknown> {
 
         this.#abortListener = (): void => {
           if (this.#settled || this.#internals.state.has(State.Interrupted)) return
-          handleReject(new CanceledError())
+          handleReject(this.#options.silent ? undefined : new CanceledError())
         }
 
         signal.addEventListener('abort', this.#abortListener, AbortOptions)
@@ -232,6 +237,11 @@ export default class Promeister<T, D = unknown> {
   }
 
   private cleanup(states: number): void {
+    if (this.#timeoutId) {
+      clearTimeout(this.#timeoutId)
+      this.#timeoutId = undefined
+    }
+
     if (states !== State.Resolved && states !== State.Timeout) this.#controller.abort()
     this.#internals.state.set(states)
     queueMicrotask(() => {
@@ -246,6 +256,7 @@ export default class Promeister<T, D = unknown> {
 
       const execute = async (): Promise<void> => {
         attempt++
+        this.#internals.onEventList = [] // Cleanup leftover events
         try {
           await new Promise<T>((innerResolve, innerReject) => {
             executor(innerResolve, innerReject, onEvent)
@@ -276,13 +287,13 @@ export default class Promeister<T, D = unknown> {
   private async createTimeout(ms: number): Promise<never> {
     const signal = this.#signal
     return new Promise((_, reject) => {
-      const timer = setTimeout(() => {
+      this.#timeoutId = setTimeout(() => {
         this.event('timeout')
-        this.onReject(reject, new TimeoutError(ms), State.Timeout)
+        this.onReject(reject, this.#options.silent ? undefined : new TimeoutError(ms), State.Timeout)
       }, ms)
       const listener = (): void => {
-        clearTimeout(timer)
-        reject(new CanceledError())
+        clearTimeout(this.#timeoutId)
+        reject(this.#options.silent ? undefined : new CanceledError())
         queueMicrotask(() => {
           signal.removeEventListener('abort', listener)
         })
@@ -299,6 +310,7 @@ export default class Promeister<T, D = unknown> {
     const len = handlers.length
     const controller = this.#controller
     const callbacks = new Array(len)
+
     for (let i = 0; i < len; i++) callbacks[i] = (): void => handlers[i](event)
     runCallbacks(callbacks)
 
@@ -358,7 +370,7 @@ export default class Promeister<T, D = unknown> {
    *  @param runOnEvent - Flag indicating whether the callback should be called on an event or not
    *  @returns A Promise for the completion of the callback.
    */
-  finally(onFinally?: SimpleVoidFunction | null, runOnEvent?: boolean): Promeister<T> {
+  finally(onFinally?: VoidFn | null, runOnEvent?: boolean): Promeister<T> {
     const internals = this.#internals
     let callbacks = internals.onEventList
     if (runOnEvent && onFinally) callbacks.push(onFinally)
@@ -367,7 +379,9 @@ export default class Promeister<T, D = unknown> {
       this.#promise.finally(
         createCallback(internals, () => {
           if (onFinally) {
-            if (runOnEvent) callbacks = callbacks.filter(callback => callback !== onFinally)
+            if (runOnEvent) {
+              internals.onEventList = callbacks.filter(callback => callback !== onFinally)
+            }
             onFinally()
             this.cleanup(State.Resolved)
           }
@@ -378,7 +392,11 @@ export default class Promeister<T, D = unknown> {
   }
 
   /**
-   *  Fires an `interrupt` even, changing the logic of the currently running `Promeister`.
+   *  Fires an `interrupt` event **and aborts** the current operation.
+   *  The promise will be rejected with a `CanceledError`.
+   *  A new internal `AbortController` is created for subsequent chained operations,
+   *  but the current promise does NOT auto-resume. You must catch the rejection
+   *  and re-execute the logic if needed.
    *
    *  @param data - data to pass as new state of the running promise.
    */
@@ -532,7 +550,7 @@ export default class Promeister<T, D = unknown> {
   }
 }
 
-function createCallback(internals: PromeisterInternals, onResult?: AnyFunction | null) {
+function createCallback(internals: PromeisterInternals, onResult?: Fn | null) {
   if (onResult) {
     return (arg?: unknown): any => {
       const result = onResult(arg)

@@ -59,6 +59,8 @@ declare module 'promeister' {
     internals?: PromeisterInternals
     /** Promise to be converted into a Promeister */
     promise?: Promise<T>
+    /** Flag blocking CancelErrors and TimeoutErrors */
+    silent?: boolean
     /** Maximum duration before cancellation  */
     timeout?: number
     /** Amount of retries before entirely giving up trying to fulfill the promise. */
@@ -105,7 +107,11 @@ declare module 'promeister' {
      */
     finally(onFinally?: SimpleVoidFunction | null, runOnEvent?: boolean): Promeister<T>
     /**
-     *  Fires an `interrupt` even, changing the logic of the currently running `Promeister`.
+     *  Fires an `interrupt` event **and aborts** the current operation.
+     *  The promise will be rejected with a `CanceledError`.
+     *  A new internal `AbortController` is created for subsequent chained operations,
+     *  but the current promise does NOT auto-resume. You must catch the rejection
+     *  and re-execute the logic if needed.
      *
      *  @param data - data to pass as new state of the running promise.
      */
@@ -165,11 +171,11 @@ declare module 'promeister' {
      */
     static reject(reason: Error, controller?: AbortController): Promeister<never>
     /**
-    *  Creates a new resolved `Promeister` for the provided value.
-    *
-    *  @param value — Any value that should be returned.
-    *  @returns — A `Promeister` whose internal state matches the provided promise.
-    */
+     *  Creates a new resolved `Promeister` for the provided value.
+     *
+     *  @param value — Any value that should be returned.
+     *  @returns — A `Promeister` whose internal state matches the provided promise.
+     */
     static resolve<T>(value: T | PromiseLike<T>, controller?: AbortController): Promeister<Awaited<T>>
     /**
      *  Creates a `Promeister` with the purpose to delay a process.
